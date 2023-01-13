@@ -25,4 +25,38 @@ class StorageManager {
     static func getAllTasksLists() -> Results<TasksList> {
         realm.objects(TasksList.self)
     }
+    
+    static func saveTasksList(tasksList: TasksList) {
+        do {
+            try realm.write {
+                realm.add(tasksList)
+            }
+            } catch {
+                print("Error save")
+            }
+    }
+    
+    static func editList(_ tasksList: TasksList, newListName: String, complition: @escaping () -> Void) {
+        do {
+            try realm.write {
+                tasksList.name = newListName
+                complition() }
+            } catch {
+                print("Error edit")
+            }
+    }
+    
+    static func deleteList(_ tasksList: TasksList) {
+        do {
+            try realm.write {
+                let tasks = tasksList.tasks
+                realm.delete(tasks)
+                realm.delete(tasksList) }
+        } catch {
+            print("Error delete")
+        }
+}
+    
+    
+    
 }
