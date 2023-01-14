@@ -10,13 +10,14 @@ import RealmSwift
 
 class TasksListsTVC: UITableViewController {
 
+    var notificationToken: NotificationToken?
     var tasksLists: Results<TasksList>!
     
     override func viewDidLoad() {
         super.viewDidLoad()
 
         tasksLists = StorageManager.getAllTasksLists().sorted(byKeyPath: "name")
-        
+        addTasksListsObserver()
         let add = UIBarButtonItem(barButtonSystemItem: .add, target: self, action: #selector(addBarButton))
         self.navigationItem.setRightBarButtonItems([add, editButtonItem], animated: true)
     }
@@ -27,7 +28,6 @@ class TasksListsTVC: UITableViewController {
         } else {
             tasksLists = tasksLists.sorted(byKeyPath: "date")
         }
-        tableView.reloadData()
     }
     
 
@@ -41,8 +41,7 @@ class TasksListsTVC: UITableViewController {
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: "Cell", for: indexPath)
         let taskList = tasksLists[indexPath.row]
-        cell.textLabel?.text = taskList.name
-        cell.detailTextLabel?.text = taskList.tasks.count.description
+        cell.configure(with: taskList)
         return cell
     }
     
@@ -50,7 +49,6 @@ class TasksListsTVC: UITableViewController {
 
     // Override to support conditional editing of the table view.
     override func tableView(_ tableView: UITableView, canEditRowAt indexPath: IndexPath) -> Bool {
-        // Return false if you do not want the specified item to be editable.
         return true
     }
     
@@ -59,18 +57,14 @@ class TasksListsTVC: UITableViewController {
         
         let deleteContextItem = UIContextualAction(style: .destructive, title: "Delete") { _, _, _ in
             StorageManager.deleteList(currentList)
-            tableView.deleteRows(at: [indexPath], with: .fade)
         }
         
         let editeContextItem = UIContextualAction(style: .destructive, title: "Edit") { _, _, _ in
-            self.alertForAddAndUpdatesListTasks(currentList) {
-            tableView.reloadRows(at: [indexPath], with: .automatic)
-            }
+            self.alertForAddAndUpdatesListTasks(currentList)
         }
         
         let doneContextItem = UIContextualAction(style: .destructive, title: "Done") { _, _, _ in
-            
-            //tableView.reloadRows(at: [indexPath], with: .automatic)
+            StorageManager.makeAllDone(currentList)
         }
         
         editeContextItem.backgroundColor = .orange
@@ -82,20 +76,20 @@ class TasksListsTVC: UITableViewController {
     
     // MARK: - Navigation
 
-    // In a storyboard-based application, you will often want to do a little preparation before navigation
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-        // Get the new view controller using segue.destination.
-        // Pass the selected object to the new view controller.
+        if let destinationVC = segue.destination as? TasksTVC,
+           let index = tableView.indexPathForSelectedRow {
+            let tasksList = tasksLists[index.row]
+            destinationVC.currentTasksList = tasksList
+        }
     }
 
     
     @objc func addBarButton() {
-        alertForAddAndUpdatesListTasks { [weak self] in
-            self?.tableView.reloadData()
-        }
+        alertForAddAndUpdatesListTasks()
     }
     
-    private func alertForAddAndUpdatesListTasks(_ tasksList: TasksList? = nil, complition: @escaping () -> Void) {
+    private func alertForAddAndUpdatesListTasks(_ tasksList: TasksList? = nil) {
         let title = tasksList == nil ? "New List" : "Edit List"
         let message = "Please insert list name"
         let doneButton = tasksList == nil ? "Save" : "Update"
@@ -107,14 +101,11 @@ class TasksListsTVC: UITableViewController {
             guard let newListName = alertTextField.text, !newListName.isEmpty else { return }
             
             if let tasksList = tasksList {
-                StorageManager.editList(tasksList, newListName: newListName, complition: complition)
+                StorageManager.editList(tasksList, newListName: newListName)
             } else {
                 let tasksList = TasksList()
                 tasksList.name = newListName
                 StorageManager.saveTasksList(tasksList: tasksList)
-                complition()
-                //self.tableView.reloadData()
-                //self.tableView.insertRows(at: [IndexPath(row: self.tasksLists.count - 1, section: 0)], with: .automatic)
             }
         }
         
@@ -132,4 +123,39 @@ class TasksListsTVC: UITableViewController {
         present(alert, animated: true)
     }
 
+    private func addTasksListsObserver() {
+        notificationToken = tasksLists.observe { [weak self] change in
+            guard let self = self else { return }
+            switch change {
+            case .initial:
+                print("initial element")
+            case .update(_, let deletions, let insertions, let modifications):
+                print("deletions: \(deletions)")
+                print("insertions: \(insertions)")
+                print("modifications: \(modifications)")
+                if !modifications.isEmpty {
+                    let indexPathArray = self.createIndexPathArray(intArr: modifications)
+                    self.tableView.reloadRows(at: indexPathArray, with: .automatic)
+                }
+                if !deletions.isEmpty {
+                    let indexPathArray = self.createIndexPathArray(intArr: deletions)
+                    self.tableView.deleteRows(at: indexPathArray, with: .automatic)
+                }
+                if !insertions.isEmpty {
+                    let indexPathArray = self.createIndexPathArray(intArr: insertions)
+                    self.tableView.insertRows(at: indexPathArray, with: .automatic)
+                }
+            case .error(let error):
+                print("error: \(error)")
+            }
+        }
+    }
+    
+    private func createIndexPathArray(intArr: [Int]) -> [IndexPath] {
+        var indexPathArray = [IndexPath]()
+        for row in intArr {
+            indexPathArray.append(IndexPath(row: row, section: 0))
+        }
+        return indexPathArray
+    }
 }

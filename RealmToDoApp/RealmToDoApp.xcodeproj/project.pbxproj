@@ -18,6 +18,8 @@
 		AF0DCA56296F291000F20EC4 /* ListModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = AF0DCA55296F291000F20EC4 /* ListModel.swift */; };
 		AF0DCA58296F29BE00F20EC4 /* TasksListsTVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = AF0DCA57296F29BE00F20EC4 /* TasksListsTVC.swift */; };
 		AF0DCA5A296F2BEB00F20EC4 /* StorageManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = AF0DCA59296F2BEB00F20EC4 /* StorageManager.swift */; };
+		AF0DCA5C2972D05700F20EC4 /* TasksTVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = AF0DCA5B2972D05600F20EC4 /* TasksTVC.swift */; };
+		AF0DCA5F2972F32100F20EC4 /* UITableViewCellExt.swift in Sources */ = {isa = PBXBuildFile; fileRef = AF0DCA5E2972F32100F20EC4 /* UITableViewCellExt.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -32,6 +34,8 @@
 		AF0DCA55296F291000F20EC4 /* ListModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ListModel.swift; sourceTree = "<group>"; };
 		AF0DCA57296F29BE00F20EC4 /* TasksListsTVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TasksListsTVC.swift; sourceTree = "<group>"; };
 		AF0DCA59296F2BEB00F20EC4 /* StorageManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StorageManager.swift; sourceTree = "<group>"; };
+		AF0DCA5B2972D05600F20EC4 /* TasksTVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TasksTVC.swift; sourceTree = "<group>"; };
+		AF0DCA5E2972F32100F20EC4 /* UITableViewCellExt.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UITableViewCellExt.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -66,6 +70,7 @@
 		AF0DCA34296F1F8900F20EC4 /* RealmToDoApp */ = {
 			isa = PBXGroup;
 			children = (
+				AF0DCA5D2972F30500F20EC4 /* Extensions */,
 				AF0DCA51296F241200F20EC4 /* Managers */,
 				AF0DCA50296F240700F20EC4 /* Models */,
 				AF0DCA49296F1FD200F20EC4 /* Views */,
@@ -116,8 +121,17 @@
 			isa = PBXGroup;
 			children = (
 				AF0DCA57296F29BE00F20EC4 /* TasksListsTVC.swift */,
+				AF0DCA5B2972D05600F20EC4 /* TasksTVC.swift */,
 			);
 			path = Controllers;
+			sourceTree = "<group>";
+		};
+		AF0DCA5D2972F30500F20EC4 /* Extensions */ = {
+			isa = PBXGroup;
+			children = (
+				AF0DCA5E2972F32100F20EC4 /* UITableViewCellExt.swift */,
+			);
+			path = Extensions;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -200,8 +214,10 @@
 			files = (
 				AF0DCA54296F25FB00F20EC4 /* TasksList.swift in Sources */,
 				AF0DCA36296F1F8900F20EC4 /* AppDelegate.swift in Sources */,
+				AF0DCA5C2972D05700F20EC4 /* TasksTVC.swift in Sources */,
 				AF0DCA38296F1F8900F20EC4 /* SceneDelegate.swift in Sources */,
 				AF0DCA5A296F2BEB00F20EC4 /* StorageManager.swift in Sources */,
+				AF0DCA5F2972F32100F20EC4 /* UITableViewCellExt.swift in Sources */,
 				AF0DCA56296F291000F20EC4 /* ListModel.swift in Sources */,
 				AF0DCA58296F29BE00F20EC4 /* TasksListsTVC.swift in Sources */,
 			);

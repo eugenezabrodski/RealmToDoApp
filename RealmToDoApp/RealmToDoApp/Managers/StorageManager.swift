@@ -36,11 +36,11 @@ class StorageManager {
             }
     }
     
-    static func editList(_ tasksList: TasksList, newListName: String, complition: @escaping () -> Void) {
+    static func editList(_ tasksList: TasksList, newListName: String) {
         do {
             try realm.write {
                 tasksList.name = newListName
-                complition() }
+                }
             } catch {
                 print("Error edit")
             }
@@ -57,6 +57,41 @@ class StorageManager {
         }
 }
     
+    static func makeAllDone(_ tasksList: TasksList) {
+        do {
+            try realm.write {
+                tasksList.tasks.setValue(true, forKey: "isComplited")
+            }
+        } catch {
+            print("Error makeAllDone")
+        }
+    }
+
+    //MARK: - Tasks
     
+    static func saveTask(_ tasksList: TasksList, task: Task) {
+        try! realm.write {
+            tasksList.tasks.append(task)
+        }
+    }
+    
+    static func editTask(_ task: Task, newNameTask: String, newNote: String) {
+        try! realm.write {
+            task.name = newNameTask
+            task.note = newNote
+        }
+    }
+    
+    static func deleteTask(_ task: Task) {
+        try! realm.write {
+            realm.delete(task)
+        }
+    }
+    
+    static func makeDone(_ task: Task) {
+        try! realm.write {
+            task.isComplited.toggle()
+        }
+    }
     
 }
