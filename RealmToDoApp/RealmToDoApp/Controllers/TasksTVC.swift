@@ -56,7 +56,7 @@ class TasksTVC: UITableViewController {
             StorageManager.deleteTask(task)
         }
         let editContextItem = UIContextualAction(style: .destructive, title: "Edit") { _, _, _ in
-            self.alertForAddAndUpdatesList(task)
+            self.alertForAddAndUpdatesList(tasksTVCFlow: .editingTask(task: task))
         }
         let doneText = task.isComplited ? "Not done" : "Done"
         let doneContextItem = UIContextualAction(style: .destructive, title: doneText) { _, _, _ in
@@ -100,51 +100,52 @@ class TasksTVC: UITableViewController {
 
 extension TasksTVC {
     @objc private func addBarButtonSystemItemSelector() {
-        alertForAddAndUpdatesList()
+        alertForAddAndUpdatesList(tasksTVCFlow: .addingNewTask)
     }
     
-    private func alertForAddAndUpdatesList(_ taskForEditing: Task? = nil) {
-        let title = "Task value"
-        let message = (taskForEditing == nil) ? "Please insert new task" : "Please edit your task"
-        let doneButton = (taskForEditing == nil) ? "Save" : "Update"
+    private func alertForAddAndUpdatesList(tasksTVCFlow: TasksTVCFlow) {
+        
+        let txtAlertData = TxtAlertData(tasksTVCFlow: tasksTVCFlow)
+
+        let alert = UIAlertController(title: txtAlertData.title, message: txtAlertData.message, preferredStyle: .alert)
+        
         var taskTextField: UITextField!
         var noteTextField: UITextField!
         
-        let alert = UIAlertController(title: title, message: message, preferredStyle: .alert)
-        let saveAction = UIAlertAction(title: doneButton, style: .default) { _ in
-            guard let newNameTask = taskTextField.text, !newNameTask.isEmpty, let newNote = noteTextField.text, !newNote.isEmpty else { return }
+        alert.addTextField { textField in
+            taskTextField = textField
+            taskTextField.placeholder = txtAlertData.titleTextField
+            taskTextField.text = txtAlertData.taskName
+        }
+        
+        alert.addTextField { textField in
+            noteTextField = textField
+            noteTextField.placeholder = txtAlertData.noteTextField
+            noteTextField.text = txtAlertData.taskNote
+        }
+        
+        let saveAction = UIAlertAction(title: txtAlertData.doneButton, style: .default) { [weak self] _ in
+            guard let newNameTask = taskTextField.text, !newNameTask.isEmpty, let newNote = noteTextField.text, !newNote.isEmpty, let self = self else { return }
             
-            if let taskForEditing = taskForEditing {
-                StorageManager.editTask(taskForEditing, newNameTask: newNameTask, newNote: newNote)
-            } else {
+            switch tasksTVCFlow {
+            case .addingNewTask:
                 let task = Task()
                 task.name = newNameTask
                 task.note = newNote
                 guard let currentTasksList = self.currentTasksList else { return }
                 StorageManager.saveTask(currentTasksList, task: task)
+                
+            case .editingTask(let task):
+                StorageManager.editTask(task, newNameTask: newNameTask, newNote: newNote)
             }
             self.filteringTasks()
         }
+        
         let cancelAction = UIAlertAction(title: "Cancel", style: .default)
         
         alert.addAction(saveAction)
         alert.addAction(cancelAction)
-        alert.addTextField { textField in
-            taskTextField = textField
-            taskTextField.placeholder = "New Task"
-            
-            if let taskName = taskForEditing {
-                taskTextField.text = taskName.name
-            }
-        }
-        alert.addTextField { textField in
-            noteTextField = textField
-            noteTextField.placeholder = "Note"
-            
-            if let taskName = taskForEditing {
-                noteTextField.text = taskName.note
-            }
-        }
+        
         present(alert, animated: true)
     }
 }
