@@ -94,4 +94,10 @@ class StorageManager {
         }
     }
     
+    static func saveWhenMove(_ task: Task) {
+        try! realm.write {
+            task.isComplited.toggle()
+        }
+    }
+    
 }

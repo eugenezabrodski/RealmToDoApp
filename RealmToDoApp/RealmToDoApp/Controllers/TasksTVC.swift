@@ -71,15 +71,25 @@ class TasksTVC: UITableViewController {
         return swipeActions
     }
     
-
-    override func tableView(_ tableView: UITableView, moveRowAt fromIndexPath: IndexPath, to: IndexPath) {
-        
+    override func tableView(_ tableView: UITableView, canMoveRowAt indexPath: IndexPath) -> Bool {
+        true
     }
     
-    
-   
-    override func tableView(_ tableView: UITableView, canMoveRowAt indexPath: IndexPath) -> Bool {
-        return true
+    override func tableView(_ tableView: UITableView, moveRowAt sourceIndexPath: IndexPath, to destinationIndexPath: IndexPath) {
+        guard let comletedTasks = completedTasks,
+              let uncompletedTasks = notCompletedTasks,
+              var arrayCompleted = Array(comletedTasks) as? [Task],
+              var arrayUnCompleted = Array(uncompletedTasks) as? [Task]
+        else { return }
+        if destinationIndexPath.section != sourceIndexPath.section && destinationIndexPath.section == 1 {
+            let uncompletedTask = arrayUnCompleted.remove(at: sourceIndexPath.row)
+            arrayCompleted.insert(uncompletedTask, at: destinationIndexPath.row)
+            StorageManager.saveWhenMove(uncompletedTask)
+        } else if destinationIndexPath.section != sourceIndexPath.section && destinationIndexPath.section == 0 {
+            let comletedTask = arrayCompleted.remove(at: sourceIndexPath.row)
+            arrayUnCompleted.insert(comletedTask, at: destinationIndexPath.row)
+            StorageManager.saveWhenMove(comletedTask)
+        }
     }
     
 
